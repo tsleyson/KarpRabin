@@ -4,96 +4,78 @@ import java.util.HashMap;
 import java.util.Arrays;
 
 public class KarpRabinTest extends TestCase{
-    String msg = "Got %d, expected %d on pattern %s\n";
+    String msg = "Expected opposite from pattern %s";
 
     public void testStringMatch() {
         // Successful and then unsuccessful matches.
         String text = "ACTGCATGCAGTTTAG";
         String pattern = "TGCA";
-        int result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 2, pattern), 2, result);
+        assertTrue(KarpRabin.match(pattern, text));
 
         pattern = "AAA";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, KarpRabin.NONE, pattern),
-                     KarpRabin.NONE, result);
+        assertFalse(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         // test for match on the end of a string.
         pattern = "TAG";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 13, pattern), 13, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         // Test for one-character match.
         text = "T";
         pattern = "T";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 0, pattern), 0, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         // The empty string always matches starting at zero.
         pattern = "";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 0, pattern),
-                     0, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         text = "TERPSICHOREAN";
         pattern = "SICHO";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 4, pattern), 4, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         // Test if the text and pattern are identical.
-        result = KarpRabin.match(text, text);
-        assertEquals(String.format(msg, result, 0, pattern), 0, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(text, text));
         
         pattern = "ORE";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 8, pattern), 8, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         pattern = "ADSF";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, KarpRabin.NONE, pattern),
-                     KarpRabin.NONE, result);
+        assertFalse(String.format(msg, pattern), KarpRabin.match(pattern, text));
         
         text = "BAAAAA";
         pattern = "AAA";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 1, pattern), 1, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         text = "B ZZZZZZ";
         pattern = "ZZZZ";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 2, pattern), 2, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         text = "bxxxxxxxxxxxxxxxxzzz";
         pattern = "zz";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 17, pattern), 17, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         text = "SORE NADEKO DA YO";
-        pattern = "NADE";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 5, pattern), 5, result);
 
-                text = "Sore Nadeko da YO";
+        pattern = "NADE";
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
+
+        text = "Sore Nadeko da YO";
 
         pattern = "Nade";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 5, pattern),
-                     5, result);        
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         pattern = "Nadek";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 5, pattern),
-                     5, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         // Look for match at end of text.
         pattern = "da YO";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 12, pattern), 12, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
 
         pattern = "nadeko";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, KarpRabin.NONE, pattern),
-                     KarpRabin.NONE, result);
+        assertFalse(String.format(msg, pattern), KarpRabin.match(pattern, text));
+
+        // If pattern longer than text, no match.
+        pattern = "Sore Nadeko da YO, yo. Maji, Nadeko rappa ja nai!";
+        assertFalse(String.format(msg, pattern), KarpRabin.match(pattern, text));
     }
 
     public void testStringMatchWithOverflow() {
@@ -103,44 +85,42 @@ public class KarpRabinTest extends TestCase{
         int result;
         text = "zAAAAAAAAAAAAAAAAAAA";
         pattern = "AAAAAAAAAAA";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 1, pattern), 1, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
+        
 
         text = "Azzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
         pattern = "zzzz";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 1, pattern), 1, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
+        
         
         text = "I heard zach say you were ALL broken Up when Your poodle died";
 
         pattern = "I heard zach say you were ALL broken Up";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 0, pattern), 0, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
+        
 
         pattern = " heard zac";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 1, pattern), 1, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
+        
 
         pattern = "you were A";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 17, pattern), 17, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
+        
 
         pattern = " heard zach";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 1, pattern), 1, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
+        
         
         pattern = "zach say you were ALL broken Up";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 8, pattern), 8, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
+        
 
         pattern = " heard zach say you were ALL broken Up when Your poodle died";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 1, pattern), 1, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
+        
 
         pattern = "Zach said YOU were all broken up over HIS poodle";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, KarpRabin.NONE, pattern),
-                     KarpRabin.NONE, result);
+        assertFalse(String.format(msg, pattern), KarpRabin.match(pattern, text));
     }
 
     public void testUnicodeStringMatch() {
@@ -150,8 +130,8 @@ public class KarpRabinTest extends TestCase{
      
         text = "IPA for 'carrot' is \u006b\u00e6\u0279\u01dd\u0241 in American English.";
         pattern = "\u006b\u00e6\u0279\u01dd\u0241";
-        result = KarpRabin.match(pattern, text);
-        assertEquals(String.format(msg, result, 20, pattern), 20, result);
+        assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
+        
     }
     
     public KarpRabinTest(String name) {

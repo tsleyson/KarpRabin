@@ -6,12 +6,10 @@
 
 public class KarpRabin {
     private static final int BASE = 103;
-    public static final int NONE = -1;
 
-    public static int match(String pattern, String text) {
-        // Returns location of first match of pattern in text.
+    public static boolean match(String pattern, String text) {
         if (pattern.length() > text.length()) {
-            return NONE;
+            return false;
         }
         int out, phash, thash;
         out = 1;
@@ -31,7 +29,7 @@ public class KarpRabin {
         for (int s = 0; s < text.length() - pattern.length(); ++s) {
             if (phash == thash) {
                 if (pattern.equals(text.substring(s, s+pattern.length()))) {
-                    return s;
+                    return true;
                 }
             }
             assert s < text.length() &&
@@ -46,9 +44,9 @@ public class KarpRabin {
         if (phash == thash) {
             if (pattern.equals(text.substring(text.length() - pattern.length(),
                                               text.length())))
-                return text.length() - pattern.length();
+                return true;
         }
-        return NONE;
+        return false;
     }
 
     private static int hash(String s) {
