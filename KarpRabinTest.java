@@ -2,9 +2,11 @@ import junit.framework.*;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Collections;
 
 public class KarpRabinTest extends TestCase{
-    String msg = "Expected opposite from pattern %s";
+    String msg = "Unexpected result with pattern %s";
 
     public void testStringMatch() {
         // Successful and then unsuccessful matches.
@@ -132,6 +134,24 @@ public class KarpRabinTest extends TestCase{
         pattern = "\u006b\u00e6\u0279\u01dd\u0241";
         assertTrue(String.format(msg, pattern), KarpRabin.match(pattern, text));
         
+    }
+
+    public void testAllMatches() {
+        String pattern, text;
+        text = "What are you doing? asks Misaka as Misaka asks what you're doing.";
+        List<Integer> matches;
+        
+        pattern = "Misaka";
+        matches = KarpRabin.allMatches(pattern, text);
+        assertEquals(String.format(msg, pattern), Arrays.asList(25, 35), matches);
+
+        pattern = "as";
+        matches = KarpRabin.allMatches(pattern, text);
+        assertEquals(String.format(msg, pattern), Arrays.asList(20, 32, 42), matches);
+
+        pattern = "Mikoto";
+        matches = KarpRabin.allMatches(pattern, text);
+        assertSame(String.format(msg, pattern), Collections.EMPTY_LIST, matches);
     }
     
     public KarpRabinTest(String name) {

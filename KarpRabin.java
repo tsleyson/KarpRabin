@@ -3,10 +3,16 @@
    matching algorithm.
    See CLRS Section 32.2.
 */
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class KarpRabin {
-    private static final int BASE = 103;
+    private static final int BASE = 103;  // Arbitrary base for hash.
 
+    /**
+       Finds first match, returns true, false if no match found.
+    */
     public static boolean match(String pattern, String text) {
         if (pattern.length() > text.length()) {
             return false;
@@ -49,32 +55,100 @@ public class KarpRabin {
         return false;
     }
 
-    private static int hash(String s) {
-        int hash = 0;
-        for (int i = 0; i < s.length(); i++) {
-            hash *= 31;
-            hash += s.charAt(i);
+    /**
+       Finds all matches of pattern in text, returns a list of
+       matching positions.
+    */
+    public static List<Integer> allMatches(String pattern, String text) {
+        if (pattern.length() > text.length()) {
+            return Collections.EMPTY_LIST;
         }
-        return hash;
+        int out, phash, thash;
+        out = 1;
+
+        for (int expt = pattern.length(); expt > 1; --expt) {
+            out *= BASE;
+        }
+        
+        // Calculate fingerprint of pattern and of first
+        // pattern.length-length group in text.
+        phash = thash = 0;
+        for (int i = 0; i < pattern.length(); ++i) {
+            phash = phash*BASE + pattern.charAt(i);
+            thash = thash*BASE + text.charAt(i);
+        }
+
+        List<Integer> matches = new ArrayList<>();
+        for (int s = 0; s < text.length() - pattern.length(); ++s) {
+            if (phash == thash) {
+                if (pattern.equals(text.substring(s, s+pattern.length()))) {
+                    matches.add(s);
+                }
+            }
+            assert s < text.length() &&
+                s + pattern.length() < text.length() :
+            "s is " + s + " and s+pattern.length() is " +
+                (s + pattern.length());
+            thash = BASE*(thash - out*text.charAt(s)) +
+                text.charAt(s+pattern.length());
+        }
+
+        // See note [4].
+        if (phash == thash) {
+            if (pattern.equals(text.substring(text.length() - pattern.length(),
+                                              text.length())))
+                matches.add(text.length() - pattern.length());
+        }
+        if (matches.size() == 0) {
+            return Collections.EMPTY_LIST;
+        }
+        return matches;
     }
 
-    public static void main(String[] args) {
-        String s1 = "abcdefghij";
-        String s2 = s1.substring(1) + "k";
-        int pow = 1;
-        for (int i = 0; i < s1.length(); i++) {
-            pow *= 31;
+    /* Not ready for primetime yet.
+    public static Set<PatternPosition> matchSet(Set<String> patterns, String text) {
+        if (pattern.length() > text.length()) {
+            return Collections.EMPTY_SET;
         }
-        System.out.printf("hash(%s) = %d%n", s1, hash(s1));
-        System.out.printf("hash(%s) = %d%n31 * hash(%s) - (31^%d * %s) + %s = %s%n",
-        s2,
-        hash(s2),
-        s1,
-        s1.length(),
-        s1.charAt(0),
-        s2.charAt(s2.length() - 1),
-        31 * hash(s1) - (pow * s1.charAt(0)) + s2.charAt(s2.length() - 1));
+        int out, thash;
+        int[] phashes = new int[pattern.size()];
+        out = 1;
 
-        System.out.println("" + (int)'a');
-    }
+        for (int expt = pattern.length(); expt > 1; --expt) {
+            out *= BASE;
+        }
+        
+        thash = 0;
+        for (int i = 0; i < pattern.length(); ++i) {
+            phash = phash*BASE + pattern.charAt(i);
+            thash = thash*BASE + text.charAt(i);
+        }
+
+        Set<PatterPosition> matches = new TreeSet<>(); 
+        for (int s = 0; s < text.length() - pattern.length(); ++s) {
+            if (phash == thash) {
+                if (pattern.equals(text.substring(s, s+pattern.length()))) {
+                    matches.add(s);
+                }
+            }
+            assert s < text.length() &&
+                s + pattern.length() < text.length() :
+            "s is " + s + " and s+pattern.length() is " +
+                (s + pattern.length());
+            thash = BASE*(thash - out*text.charAt(s)) +
+                text.charAt(s+pattern.length());
+        }
+
+        // See note [4].
+        if (phash == thash) {
+            if (pattern.equals(text.substring(text.length() - pattern.length(),
+                                              text.length())))
+                matches.add(text.length() - pattern.length());
+        }
+        if (matches.size() == 0) {
+            return Collections.EMPTY_SET;
+        }
+        return matches;
+        }
+    */
 }
